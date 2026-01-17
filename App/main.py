@@ -4,7 +4,6 @@ from App.routes import document
 
 app = FastAPI(title="AI Assistant Chatbot API")
 
-# Đăng ký router
 app.include_router(document.router)
 
 @app.get("/")

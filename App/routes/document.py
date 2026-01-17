@@ -13,24 +13,18 @@ OUTPUT_DIR = "./storage/outputs"
 
 @router.post("/process")
 async def process_document(file: UploadFile = File(...)):
-    # 1. Tạo tên file duy nhất để tránh trùng lặp khi nhiều người dùng cùng lúc
     file_id = str(uuid.uuid4())
     ext = os.path.splitext(file.filename)[1]
     temp_filename = f"{file_id}{ext}"
     input_path = os.path.join(UPLOAD_DIR, temp_filename)
 
-    # 2. Lưu file upload từ Mobile vào thư mục storage/uploads
     try:
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi lưu file: {str(e)}")
 
-    # 3. Gọi luồng logic chính (OCR -> Gemini -> TTS)
-    # Lưu ý: Vì run_async là hàm async nên phải dùng await
     try:
-        # Bạn cần chỉnh sửa Main_service để nhận vào 1 file path cụ thể
-        # Thay vì quét cả thư mục như lúc trước
         mp3_path = await service.run_async(input_path)
         print(mp3_path)
         if mp3_path and os.path.exists(mp3_path):
